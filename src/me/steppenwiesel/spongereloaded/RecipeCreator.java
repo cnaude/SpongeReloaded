@@ -1,10 +1,16 @@
 package me.steppenwiesel.spongereloaded;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.logging.Logger;
-
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import org.bukkit.inventory.ShapedRecipe;
 
 /**
@@ -36,7 +42,7 @@ import org.bukkit.inventory.ShapedRecipe;
 public final class RecipeCreator {
 
 	private File cfg;
-	private Logger logger;
+	private String[] defaultConfig;
 	private ShapedRecipe recipe;
 
 	/**
@@ -46,10 +52,9 @@ public final class RecipeCreator {
 	 * @param defaultConfig The default configuration to fall back if no other configuration is given.
 	 * @throws RecipeException If any errors occur during building up the recipe.
 	 */
-	public RecipeCreator(File config, Logger logger, String[] defaultConfig) throws RecipeException {
+	public RecipeCreator(File config, String[] defaultConfig) throws RecipeException {
 		this.cfg = config;
-		if (logger == null) this.logger = Logger.getLogger("Minecraft");
-		else this.logger = logger;
+
 		if (!cfg.exists()) {
 			try {
 				writeDefaultConfig();
@@ -62,32 +67,47 @@ public final class RecipeCreator {
 		if (this.recipe == null) throw new RecipeException("Could not create recipe - unknown error");
 	}
 
-	private ShapedRecipe createRecipe() {
+	private ShapedRecipe createRecipe() throws RecipeException {
 		try {
 			String[] config = readConfig();
 			// TODO generate a ShapedRecipe from the configuration file
 		} catch (IOException e) {
-			logger.severe("Could not read recipe configuration");
-			e.printStackTrace();
+			throw new RecipeException(e);
 		}
 		return null;
 	}
 
 	private String[] readConfig() throws IOException {
-		// TODO read line into an array of strings
-		return null;
+		ArrayList<String> lines = new ArrayList<>();
+
+		FileInputStream fis = new FileInputStream(cfg);
+		DataInputStream dis = new DataInputStream(fis);
+		InputStreamReader isr = new InputStreamReader(dis);
+		BufferedReader br = new BufferedReader(isr);
+
+		String line;
+		while ((line = br.readLine()) != null) {
+			lines.add(line);
+		}
+
+		return (String[]) lines.toArray();
 	}
 
 	private void writeDefaultConfig() throws IOException {
 		if (cfg.exists()) cfg.delete();
 		if (!cfg.createNewFile()) throw new IOException("Could not create configuration file: " + cfg.getPath());
 		FileOutputStream fos = new FileOutputStream(cfg);
-		// TODO write.
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		for (String line : defaultConfig)
+			oos.writeChars(line);
+		oos.close();
+		fos.close();
 	}
 
 	/**
 	 * Used to retrieve the created recipe.<br>
-	 * At this time, the recipe is completely built up and will no longer throw any errors.
+	 * This method is safe to use and will not generate any Exception.<br>
+	 * The returned recipe will never be null.
 	 * @return The {@link ShapedRecipe}.
 	 */
 	public ShapedRecipe getRecipe() {
