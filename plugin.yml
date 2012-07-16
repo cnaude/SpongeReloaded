@@ -1,0 +1,7 @@
+name: SpongeReloaded
+version: 1.4a1
+description: Re-enables the sponge like in Alpha and Indev.
+load: postworld
+author: Steppenwiesel
+website: http://dev.bukkit.org/server-mods/SpongeReloaded/
+main: me.steppenwiesel.spongereloaded.SpongeReloadedPlugin

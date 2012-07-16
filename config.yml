@@ -1,0 +1,12 @@
+# # # # # # # # # # # # # # # # # # #
+# SpongeReloaded Configuration File #
+# # # # # # # # # # # # # # # # # # #
+# See http://dev.bukkit.org/server-mods/SpongeReloaded for details.
+
+config_version: 1.4
+enabled: true
+craftable: true
+radius: 2
+soak_water: true
+soak_lava: false
+soak_fire: false
