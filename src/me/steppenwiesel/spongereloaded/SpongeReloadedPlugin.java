@@ -124,9 +124,10 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	public void onBlockPlace(final BlockPlaceEvent event) {
 		final Block block = event.getBlock();
 		final WorldConfig wconf = getWorldConfig(block.getWorld());
-		if (block.getTypeId() == WorldConfig.ID_SPONGE)
+		if (block.getTypeId() == WorldConfig.ID_SPONGE) {
 			wconf.removeSuckables(block);
-		else if (wconf.isSuckable(block))
+			wconf.callPhysics(block);
+		} else if (wconf.isSuckable(block))
 			event.setCancelled(wconf.spongeInRange(block));
 	}
 
@@ -252,6 +253,7 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 		// update sponge
 		final WorldConfig wconf = getWorldConfig(event.getBlock().getWorld());
 		wconf.removeSuckables(newBlock);
+		wconf.callPhysics(newBlock);
 		wconf.callPhysics(oldBlock);
 	}
 
