@@ -108,7 +108,7 @@ public class WorldConfig {
 				for (int z = -range; z <= range; z++) {
 					final Block checkBlock = block.getRelative(x,y,z);
 					if (isSuckable(checkBlock)) {
-						checkBlock.setTypeIdAndData(0, (byte) 0, true);
+						checkBlock.setTypeIdAndData(0, (byte) 0, false);
 					}
 				}
 	}
