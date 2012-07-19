@@ -2,7 +2,7 @@ package me.steppenwiesel.spongereloaded;
 
 /**
  * Used by the {@link RecipeCreator} class to indicate that an error occured while creating the recipe.
- * @author Wüstengecko
+ * @author Steppenwiesel
  *
  */
 public class RecipeException extends Exception {
