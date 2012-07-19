@@ -22,6 +22,7 @@ import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -117,6 +118,16 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	 */
 
 	/**
+	 * remove the world configuration if a world is getting unloaded.
+	 * @param event
+	 */
+	public void onWorldUnload(WorldUnloadEvent event) {
+		String worldName = event.getWorld().getName();
+		if (this.wconf.remove(worldName) != null)
+			log("Removed configuration for world " + worldName + " from memory");
+	}
+
+	/**
 	 * react to the placement of sponges and water/lava blocks.
 	 * @param event
 	 */
@@ -165,9 +176,9 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	 */
 	@EventHandler
 	public void onBlockSpread(final BlockSpreadEvent event) {
-		final Block block = event.getSource();
-		final WorldConfig wconf = getWorldConfig(block.getWorld());
-		if (wconf.isSuckable(block))
+		final Block source = event.getSource();
+		final WorldConfig wconf = getWorldConfig(source.getWorld());
+		if (wconf.isSuckable(source))
 			event.setCancelled(wconf.spongeInRange(event.getBlock()));
 	}
 
