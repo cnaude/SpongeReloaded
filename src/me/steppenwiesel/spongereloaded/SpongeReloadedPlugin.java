@@ -153,7 +153,9 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 		final ItemStack item = event.getItem();
 		if (item == null || item.getTypeId() != Material.FLINT_AND_STEEL.getId()) return;
 		final Block newBlock = event.getClickedBlock().getRelative(event.getBlockFace());
-		event.setCancelled(getWorldConfig(newBlock.getWorld()).spongeInRange(newBlock));
+		final WorldConfig wconf = getWorldConfig(newBlock.getWorld());
+		if (wconf.isFireSuckable())
+			event.setCancelled(wconf.spongeInRange(newBlock));
 	}
 
 	/**
@@ -162,9 +164,10 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	 */
 	@EventHandler
 	public void onBlockSpread(final BlockSpreadEvent event) {
-		final Block block = event.getBlock();
+		final Block block = event.getSource();
 		final WorldConfig wconf = getWorldConfig(block.getWorld());
-		event.setCancelled(wconf.spongeInRange(block));
+		if (wconf.isSuckable(block))
+			event.setCancelled(wconf.spongeInRange(event.getBlock()));
 	}
 
 	/**
@@ -230,6 +233,8 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 		for (final Block i : event.getBlocks()) {
 			if (i.getTypeId() == WorldConfig.ID_SPONGE) {
 				wconf.callPhysics(i);
+				// note: Bukkit automatically calls the physics for each affected block.
+				// No need to manually remove all suckable blocks in this method.
 			}
 		}
 	}
@@ -264,4 +269,5 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	/*
 	 * END EVENTHANDLER
 	 */
+
 }
