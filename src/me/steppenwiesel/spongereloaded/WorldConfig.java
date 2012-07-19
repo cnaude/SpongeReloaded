@@ -119,12 +119,11 @@ public class WorldConfig {
 	 * @return
 	 */
 	public boolean spongeInRange(final Block block) {
-		if (isSuckable(block))
-			for (int x = -range; x <= range; x++)
-				for (int y = -range; y <= range; y++)
-					for (int z = -range; z <= range; z++)
-						if (block.getRelative(x,y,z).getTypeId() == ID_SPONGE)
-							return true;
+		for (int x = -range; x <= range; x++)
+			for (int y = -range; y <= range; y++)
+				for (int z = -range; z <= range; z++)
+					if (block.getRelative(x,y,z).getTypeId() == ID_SPONGE)
+						return true;
 		return false;
 	}
 
