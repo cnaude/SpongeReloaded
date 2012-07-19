@@ -28,13 +28,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 
-	private final int idSponge = Material.SPONGE.getId();
 	/**
 	 * the WorldConfig objects, mapped by the world's names
 	 * @see {@link World}, {@link World#getName()}
 	 */
 	private Map<String, WorldConfig> wconf;
-	public final boolean DEBUG = true;
 
 	@Override
 	public void onEnable() {
@@ -50,22 +48,15 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 
 		// crafting
 		if (getConfig().getBoolean("craftable")) {
-			String[] defaultRecipe = new String[] {
-					"aba", "bab", "aba", "", "a|SAND", "b|STRING"
-			};
-
-			RecipeCreator recipeCreator = null;
-
 			try {
-				recipeCreator = new RecipeCreator(new File(this.getDataFolder(), "recipe.cfg"), getLogger(), defaultRecipe);
+				String[] defaultRecipe = new String[] { "aba", "bab", "aba", "", "a-SAND", "b-STRING" };
+				File config = new File(this.getDataFolder(), "recipe.cfg");
+				ShapedRecipe recipe = new RecipeCreator(config, defaultRecipe).getRecipe();
+				Bukkit.addRecipe(recipe);
 			} catch (RecipeException e) {
-				// TODO Auto-generated catch block
+				log("Failed to read crafting configuration.");
 				e.printStackTrace();
 			}
-
-			ShapedRecipe recipe = recipeCreator.getRecipe();
-			if (recipe != null)
-				Bukkit.addRecipe(recipe);
 		}
 
 		// world configurations
@@ -124,8 +115,8 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	public void onBlockPlace(final BlockPlaceEvent event) {
 		final Block block = event.getBlock();
 		final WorldConfig wconf = this.wconf.get(block.getWorld().getName());
-		if (block.getTypeId() == idSponge)
-			wconf.removeSuckables(block, true);
+		if (block.getTypeId() == WorldConfig.ID_SPONGE)
+			wconf.removeSuckables(block);
 		else if (wconf.isSuckable(block))
 			event.setCancelled(wconf.spongeInRange(block));
 	}
@@ -188,7 +179,7 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onBlockBreak(final BlockBreakEvent event) {
 		final Block block = event.getBlock();
-		if (block.getTypeId() != idSponge) return;
+		if (block.getTypeId() != WorldConfig.ID_SPONGE) return;
 		final WorldConfig wconf = this.wconf.get(block.getWorld().getName());
 		wconf.callPhysics(block);
 	}
@@ -200,7 +191,7 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onBlockBurn(final BlockBurnEvent event) {
 		final Block block = event.getBlock();
-		if (block.getTypeId() != idSponge) return;
+		if (block.getTypeId() != WorldConfig.ID_SPONGE) return;
 		final WorldConfig wconf = this.wconf.get(block.getWorld().getName());
 		wconf.callPhysics(block);
 	}
@@ -213,8 +204,8 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	public void onBlockPhysics(final BlockPhysicsEvent event) {
 		final Block block = event.getBlock();
 		final WorldConfig wconf = this.wconf.get(block.getWorld().getName());
-		if (block.getTypeId() == idSponge)
-			wconf.removeSuckables(block, false);
+		if (block.getTypeId() == WorldConfig.ID_SPONGE)
+			wconf.removeSuckables(block);
 		else if (wconf.isSuckable(block) && wconf.spongeInRange(block))
 			block.setTypeIdAndData(0, (byte) 0, false);
 	}
@@ -228,7 +219,7 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 		// check if sponge(s) is/are affected, call physics if so
 		final WorldConfig wconf = this.wconf.get(event.getBlock().getWorld().getName());
 		for (final Block i : event.getBlocks()) {
-			if (i.getTypeId() == idSponge) {
+			if (i.getTypeId() == WorldConfig.ID_SPONGE) {
 				wconf.callPhysics(i);
 			}
 		}
@@ -242,11 +233,11 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	public void onBlockPistonRetract(final BlockPistonRetractEvent event) {
 		final Block oldBlock = event.getBlock().getRelative(event.getDirection(), 2);
 		final Block newBlock = event.getBlock().getRelative(event.getDirection(), 1);
-		if (!event.isSticky() || oldBlock.getTypeId() != idSponge) return;
+		if (!event.isSticky() || oldBlock.getTypeId() != WorldConfig.ID_SPONGE) return;
 
 		// update sponge
 		final WorldConfig wconf = this.wconf.get(event.getBlock().getWorld().getName());
-		wconf.removeSuckables(newBlock, true);
+		wconf.removeSuckables(newBlock);
 		wconf.callPhysics(oldBlock);
 	}
 
@@ -257,7 +248,7 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onEntityChangeBlock(final EntityChangeBlockEvent event) {
 		final Block block = event.getBlock();
-		if (block.getTypeId() == idSponge)
+		if (block.getTypeId() == WorldConfig.ID_SPONGE)
 			wconf.get(block.getWorld().getName()).callPhysics(block);
 	}
 

@@ -42,11 +42,6 @@ public class WorldConfig {
 		soakWater = enabled && soakWater;
 		soakLava = enabled && soakLava;
 		soakFire = enabled && soakFire;
-
-		if (plugin.DEBUG) {
-			plugin.getLogger().info("Loaded configuration for '" + world.getName() + "'");
-			plugin.getLogger().info("enabled=" + (enabled?"yes|range=" + range + "|suckable=water:" + (soakWater?"yes":"no") + ",lava:" + (soakLava?"yes":"no") + ",fire:" + (soakFire?"yes":"no"):"no"));
-		}
 	}
 
 	/**
@@ -107,9 +102,7 @@ public class WorldConfig {
 	 * remove suckable blocks within the range of this block.
 	 * @param block
 	 */
-	public void removeSuckables(final Block block, final boolean doPhysics) {
-		if (plugin.DEBUG) plugin.getLogger().info("Calling physics around x=" + block.getX() + ",y=" + block.getY() + ",z=" + block.getZ() + "@" + world.getName());
-
+	public void removeSuckables(final Block block) {
 		for (int x = -range; x <= range; x++)
 			for (int y = -range; y <= range; y++)
 				for (int z = -range; z <= range; z++) {
@@ -118,7 +111,6 @@ public class WorldConfig {
 						checkBlock.setTypeIdAndData(0, (byte) 0, false);
 					}
 				}
-		if (doPhysics) callPhysics(block);
 	}
 
 	/**
