@@ -163,7 +163,7 @@ public class SpongeReloadedPlugin extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onPlayerInteract(final PlayerInteractEvent event) {
 		final ItemStack item = event.getItem();
-		if (item == null || item.getTypeId() != Material.FLINT_AND_STEEL.getId()) return;
+		if (item == null || item.getTypeId() != Material.FLINT_AND_STEEL.getId() || event.getClickedBlock() == null || event.getBlockFace() == null) return;
 		final Block newBlock = event.getClickedBlock().getRelative(event.getBlockFace());
 		final WorldConfig wconf = getWorldConfig(newBlock.getWorld());
 		if (wconf.isFireSuckable())
